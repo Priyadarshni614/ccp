@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GREANIX - My Profile</title>
+    <link rel="icon" type="image/png" href="greanixlogo.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            overscroll-behavior: none;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #ffffff;
+            padding: 10px 30px;
+            border-bottom: 3px solid #f9fbf9;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+
+        .navbar-left { display: flex; align-items: center; }
+        .navbar-left img { height: 50px; margin-right: 10px; }
+        .navbar-left span { font-size: 22px; font-weight: 600; color: #28a745; }
+
+        .navbar-center {
+            display: flex;
+            flex-grow: 1;
+            justify-content: center;
+        }
+
+        .navbar-center a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #343a40;
+            font-weight: 500;
+        }
+
+        .navbar-center a.active {
+            font-weight: 700;
+            color: #28a745;
+        }
+
+        .container { 
+            max-width: 1200px; 
+            margin: 30px auto; 
+            padding: 20px; 
+            background: #fff; 
+            border-radius: 8px; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.05); 
+        }
+        
+        .chart-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 40px; 
+            margin-top: 20px; 
+        }
+
+        .chart-container { 
+            padding: 20px; 
+            border: 1px solid #eee; 
+            border-radius: 8px; 
+        }
+
+        h2, h3 { 
+            color: #2e7d32; 
+        }
+
+        @media (max-width: 900px) { 
+            .chart-grid { grid-template-columns: 1fr; } 
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+      <div class="navbar-left">
+        <img src="greanixlogo.png" alt="GREANIX Logo">
+        <span>GREANIX</span>
+      </div>
+      <div class="navbar-center">
+        <a href="ex4.html">Home</a>
+        <a href="calculate.html">Calculator</a>
+        <a href="profile.html" class="active">Profile</a>
+        <a href="ex4.html#about">About</a>
+      </div>
+      <div class="navbar-right" id="navbar-right">
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 id="welcome-message">Welcome!</h2>
+        <p>Here is your carbon footprint tracking history.</p>
+        
+        <div class="chart-container" style="margin-top: 30px;">
+            <h3>Monthly Footprint Trend</h3>
+            <canvas id="monthlyTrendChart"></canvas>
+        </div>
+
+        <div class="chart-grid" style="margin-top: 30px;">
+            <div class="chart-container">
+                <h3>Breakdown (Last Month)</h3>
+                <canvas id="monthlyPieChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Breakdown (This Year's Average)</h3>
+                <canvas id="yearlyPieChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container" style="margin-top: 30px;">
+            <h3>Yearly Total Emissions</h3>
+            <canvas id="yearlyChangesChart"></canvas>
+        </div>
+
+        <div class="chart-container" style="margin-top: 30px; background-color: #e8f5e9;">
+            <h3>View Status for a Specific Month</h3>
+            
+            <div style="margin-bottom: 20px;">
+              <label for="month-selector" style="font-weight: bold;">Select Month:</label>
+              <input type="month" id="month-selector" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+            </div>
+            
+            <div id="monthly-summary-display">
+                <p>Please select a month to see the summary.</p> 
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const userId = sessionStorage.getItem('greanixUserId');
+    if (!userId) {
+        alert("You are not logged in. Redirecting to login page.");
+        window.location.href = '/login.html';
+        return;
+    }
+
+    // 1. FETCH USER DATA
+    const response = await fetch(`/api/user-data/${userId}`);
+    const userData = await response.json();
+
+    document.getElementById('welcome-message').textContent = `Welcome, ${userData.username}!`;
+    const history = userData.history;
+
+    // --- MOVE THIS LINE HERE ---
+    // Sort history chronologically to ensure all charts display in order
+    history.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    if (!history || history.length === 0) {
+        document.querySelector('.container').innerHTML += '<p style="text-align:center; margin-top:30px;">No history yet. Use the <a href=/calculate.html>calculator</a> to add your first entry!</p>';
+        return;
+    }
+
+    // --- NEW MONTH SELECTOR LOGIC ---
+    const monthSelector = document.getElementById('month-selector');
+    const summaryDisplay = document.getElementById('monthly-summary-display');
+
+    function displayMonthSummary(selectedDate) {
+        const year = selectedDate.getFullYear();
+        const month = selectedDate.getMonth(); // 0-11
+
+        const startOfMonth = new Date(year, month, 1);
+        const endOfMonth = new Date(year, month + 1, 0);
+
+        const monthEntries = history.filter(entry => {
+            const entryDate = new Date(entry.date);
+            return entryDate >= startOfMonth && entryDate <= endOfMonth;
+        });
+
+        if (monthEntries.length > 0) {
+            const totalSum = monthEntries.reduce((acc, entry) => acc + entry.totalEmissions, 0);
+            const avgTotal = totalSum / monthEntries.length;
+
+            const breakdownSum = monthEntries.reduce((acc, entry) => {
+                acc.homeEnergy += entry.breakdown.homeEnergy;
+                acc.transportation += entry.breakdown.transportation;
+                acc.consumption += entry.breakdown.consumption;
+                return acc;
+            }, { homeEnergy: 0, transportation: 0, consumption: 0 });
+
+            summaryDisplay.innerHTML = `
+                <p style="font-size: 1.5rem; font-weight: bold;">
+                    Average Footprint: ${avgTotal.toFixed(2)} kg CO₂e
+                </p>
+                <ul style="list-style-type: none; padding: 0; margin-top: 10px;">
+                    <li><strong>Home Energy:</strong> ${(breakdownSum.homeEnergy / monthEntries.length).toFixed(2)} kg</li>
+                    <li><strong>Transportation:</strong> ${(breakdownSum.transportation / monthEntries.length).toFixed(2)} kg</li>
+                    <li><strong>Consumption:</strong> ${(breakdownSum.consumption / monthEntries.length).toFixed(2)} kg</li>
+                </ul>
+            `;
+        } else {
+            summaryDisplay.innerHTML = '<p>No calculations were saved for the selected month.</p>';
+        }
+    }
+
+    monthSelector.addEventListener('change', () => {
+        if (monthSelector.value) {
+            const [year, month] = monthSelector.value.split('-').map(Number);
+            const selectedDate = new Date(year, month - 1, 15);
+            displayMonthSummary(selectedDate);
+        }
+    });
+
+    // Set default to current month
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    monthSelector.value = `${year}-${month}`;
+    monthSelector.dispatchEvent(new Event('change'));
+
+    // --- END OF NEW CODE BLOCK ---
+
+    // --- Monthly Line Chart ---
+    const monthlyData = {};
+    history.forEach(entry => {
+        const monthYear = new Date(entry.date).toLocaleString('default', { month: 'short', year: 'numeric' });
+        if (!monthlyData[monthYear]) monthlyData[monthYear] = [];
+        monthlyData[monthYear].push(entry.totalEmissions);
+    });
+
+    const monthlyLabels = Object.keys(monthlyData);
+    const monthlyValues = monthlyLabels.map(month => {
+        const monthEntries = monthlyData[month];
+        return monthEntries.reduce((a, b) => a + b, 0) / monthEntries.length;
+    });
+
+    new Chart('monthlyTrendChart', {
+        type: 'bar',
+        data: {
+            labels: monthlyLabels,
+            datasets: [{
+                label: 'Avg Monthly CO₂e (kg)',
+                data: monthlyValues,
+                backgroundColor: '#28a745',
+                barPercentage: 0.5 // <-- Added for bar width
+            }]
+        }
+    });
+
+    // --- Yearly Bar Chart ---
+    const yearlyData = {};
+    history.forEach(entry => {
+        const year = new Date(entry.date).getFullYear();
+        if (!yearlyData[year]) yearlyData[year] = 0;
+        yearlyData[year] += entry.totalEmissions;
+    });
+
+    new Chart('yearlyChangesChart', {
+        type: 'bar',
+        data: {
+            labels: Object.keys(yearlyData),
+            datasets: [{
+                label: 'Total Yearly CO₂e (kg)',
+                data: Object.values(yearlyData),
+                backgroundColor: '#66bb6a',
+                barPercentage: 0.5 // <-- Added for bar width
+            }]
+        }
+    });
+
+    const chartColors = ['#66bb6a', '#42a5f5', '#ffca28'];
+    const pieLabels = ['Home Energy', 'Transportation', 'Consumption'];
+    
+    // --- Monthly Pie Chart (Latest Month Average) ---
+    // First, sort history to make sure the latest entry is truly last
+    history.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Get the date of the absolute latest entry
+    const latestEntryDate = new Date(history[history.length - 1].date);
+    const latestYear = latestEntryDate.getFullYear();
+    const latestMonth = latestEntryDate.getMonth();
+
+    // Filter to get ALL entries from that same month and year
+    const latestMonthEntries = history.filter(entry => {
+        const entryDate = new Date(entry.date);
+        return entryDate.getFullYear() === latestYear && entryDate.getMonth() === latestMonth;
+    });
+
+    // Calculate the average breakdown for that month
+    const avgBreakdown = { homeEnergy: 0, transportation: 0, consumption: 0 };
+    latestMonthEntries.forEach(entry => {
+        avgBreakdown.homeEnergy += entry.breakdown.homeEnergy;
+        avgBreakdown.transportation += entry.breakdown.transportation;
+        avgBreakdown.consumption += entry.breakdown.consumption;
+    });
+
+    const entryCount = latestMonthEntries.length || 1;
+    const latestMonthAvgData = [
+        avgBreakdown.homeEnergy / entryCount,
+        avgBreakdown.transportation / entryCount,
+        avgBreakdown.consumption / entryCount
+    ];
+
+    // Update the chart title to be more accurate
+    const latestMonthName = latestEntryDate.toLocaleString('default', { month: 'long' });
+    document.querySelector('#monthlyPieChart').parentElement.querySelector('h3').textContent = `Breakdown (${latestMonthName})`;
+
+    new Chart('monthlyPieChart', { 
+        type: 'pie', 
+        data: { 
+            labels: pieLabels, 
+            datasets: [{ data: latestMonthAvgData, backgroundColor: chartColors }] 
+        } 
+    });
+
+    // --- Yearly Pie Chart (Average for current year) ---
+    const currentYear = new Date().getFullYear();
+    const thisYearEntries = history.filter(e => new Date(e.date).getFullYear() === currentYear);
+    
+    const yearlyAvgBreakdown = { homeEnergy: 0, transportation: 0, consumption: 0 };
+    thisYearEntries.forEach(e => {
+        yearlyAvgBreakdown.homeEnergy += e.breakdown.homeEnergy;
+        yearlyAvgBreakdown.transportation += e.breakdown.transportation;
+        yearlyAvgBreakdown.consumption += e.breakdown.consumption;
+    });
+
+    const numEntries = thisYearEntries.length || 1;
+    const yearlyAvgData = [
+        yearlyAvgBreakdown.homeEnergy / numEntries,
+        yearlyAvgBreakdown.transportation / numEntries,
+        yearlyAvgBreakdown.consumption / numEntries
+    ];
+
+    new Chart('yearlyPieChart', { type: 'pie', data: { labels: pieLabels, datasets: [{ data: yearlyAvgData, backgroundColor: chartColors }] } });
+});
+</script>
+
+<script src="auth.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="greanixlogo.png">
+  <title>GREANIX - Carbon Footprint Visualizer</title>
+  <style>
+  
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4fdf6;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3 {
+        color: #2e7d32;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    h1 { font-size: 3rem; }
+    h2 { font-size: 2.25rem; }
+    h3 { font-size: 1.75rem; }
+
+    p {
+        font-size: 1.1rem;
+        color: #555;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+   
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #ffffff;
+      padding: 10px 30px;
+      border-bottom: 2px solid #f6f8f7;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar-left img {
+      height: 60px;
+      width: auto;
+      margin-right: 10px;
+    }
+
+    .navbar-left span {
+      font-size: 22px;
+      font-weight: 600;
+      color: #26a69a;
+    }
+
+    .navbar-center a {
+      margin: 0 15px;
+      text-decoration: none;
+      color: #555;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .navbar-center a:hover,
+    .navbar-center a.active {
+      background-color: #e0f2f1;
+      color: #00796b;
+    }
+
+    .navbar-right button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .navbar-right .login {
+      background-color: #ffffff;
+      color: #333;
+      border: 1px solid #ccc;
+    }
+
+    .navbar-right .signup {
+      background-color: #00c853;
+      color: #fff;
+    }
+    
+    .navbar-right button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    /*
+      Hero Section
+    */
+    .hero {
+      padding: 80px 40px;
+      text-align: center;
+      background-color: #e8f5e9;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      color: #1b5e20;
+    }
+    
+    .hero p {
+        font-size: 1.25rem;
+        margin-bottom: 30px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .cta-button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .cta-button:hover {
+      background-color: #388e3c;
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    /*
+      Sections
+    */
+    .section {
+        padding: 60px 0;
+    }
+
+    .section-light {
+        background-color: #f4fdf6;
+    }
+
+    .section-dark {
+        background-color: #ffffff;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .section-title h2 {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 28px; /* Increased from 18px */
+    }
+    .section-title h2::after {
+        content: '';
+        position: absolute;
+        width: 103%; 
+        height: 4px;
+        background-color: #4caf50;
+        bottom: -10px; /* Move the underline further down */
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 3px;
+    }
+    
+    .how-it-works-container {
+        display: flex;
+        justify-content: center;
+        gap: 35px;
+        text-align: center;
+        flex-wrap: wrap;
+    }
+
+    .step-card {
+        background-color: #e8f5e9;
+        padding: 40px 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        width: 300px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .step-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    
+    .step-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #4caf50;
+        margin-bottom: 15px;
+        line-height: 1;
+    }
+
+    .step-card h3 {
+        margin-bottom: 10px;
+    }
+
+    .emission-flex-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 20px;
+      /* Added perspective for the 3D flip effect */
+      perspective: 1000px;
+    }
+
+    /* New styles for the flip card */
+    .emission-card {
+      background-color: transparent; /* Changed to transparent for the flip effect */
+      width: 300px; /* Increased card size */
+      height: 350px; /* Set a fixed height */
+      text-align: center;
+      position: relative;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+    }
+    
+    .emission-card:hover {
+        transform: rotateY(180deg);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden; /* Safari */
+      backface-visibility: hidden;
+      border-radius: 12px;
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: #f1f8e9;
+    }
+
+    .card-front {
+        transform: rotateY(0deg);
+    }
+
+    .card-back {
+        transform: rotateY(180deg);
+        background-color: #e0f2f1; /* Different color for the back */
+        color: #333;
+    }
+
+    .card-back p {
+        font-size: 1rem;
+        color: #555;
+    }
+
+    .emission-card img {
+      width: 250px; /* Increased image size */
+      height: 250px;
+      margin-bottom: 20px;
+    }
+    
+    .emission-card h3 {
+        margin-top: 0;
+        color: #1b5e20;
+    }
+    
+   
+    .testimonials {
+        background-color: #e0f2f1;
+    }
+    
+    .testimonial-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .testimonial-quote {
+        font-style: italic;
+        font-size: 1.5rem;
+        color: #00796b;
+        margin-bottom: 20px;
+    }
+    
+    .testimonial-author {
+        font-weight: bold;
+        color: #2e7d32;
+    }
+
+    
+    .image-text-block {
+        display: flex;
+        align-items: center;
+        gap: 50px;
+        flex-wrap: wrap;
+        margin-bottom: 60px;
+    }
+
+    .image-text-block.reverse {
+        flex-direction: row-reverse;
+    }
+
+    .image-text-block img {
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+    
+    .image-text-block .content {
+        flex: 1;
+        min-width: 300px;
+    }
+    
+    .image-text-block h3 {
+        margin-bottom: 15px;
+    }
+
+    /* New style for the detailed emission images */
+    .image-text-pair {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .image-text-pair.reverse {
+        flex-direction: row-reverse;
+    }
+
+    .image-text-pair .content {
+        flex: 1;
+    }
+
+    .image-text-pair img {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        flex-shrink: 0;
+    }
+
+    /* Responsive adjustments for the new image-text layout */
+    @media (max-width: 900px) {
+        .image-text-pair, .image-text-pair.reverse {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+   
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      background-color: #c8e6c9;
+      font-size: 1rem;
+    }
+
+    /* Removed the social-icons styles as requested */
+    
+   
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 1s ease, transform 1s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+   
+    @media (max-width: 900px) {
+        .navbar-center, .navbar-right {
+            display: none;
+        }
+        
+        .navbar-left {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+        }
+        
+        .how-it-works-container, .emission-flex-container {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .image-text-block, .image-text-block.reverse {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .image-text-block img {
+            max-width: 100%;
+        }
+    }
+
+    html, body {
+      overscroll-behavior: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="navbar-left">
+      <img src="greanixlogo.png" alt="GREANIX Logo">
+      <span>GREANIX</span>
+    </div>
+    <div class="navbar-center">
+      <a href="#" class="active">Home</a>
+      <a href="#calculator">Calculator</a>
+      <a href="#emissions">Emissions</a>
+      <a href="ex4.html#about">About</a>
+    </div>
+    <div class="navbar-right" id="navbar-right">
+      <button class="login" onclick="window.location.href='login.html'">Login</button>
+      <button class="signup" onclick="window.location.href='signup.html'">Sign Up</button>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div id="logged-out-view">
+      <h1>Your Journey to a Lower Carbon Footprint Starts Here.</h1>
+      <p>Create a free account to calculate, track, and reduce your household's climate impact with our simple, powerful tool.</p>
+      <a href="signup.html" class="cta-button">Create Your Free Account</a>
+    </div>
+
+    <div id="logged-in-view" style="display: none;">
+      <h1>Welcome Back! Ready to Check Your Footprint?</h1>
+      <p>You're all set. You can start a new calculation or view your saved history from your profile.</p>
+      <a href="calculate.html" class="cta-button">Start My Calculation</a>
+    </div>
+  </section>
+  
+  <section id="calculator" class="section section-light">
+    <div class="container">
+      <div class="section-title">
+        <h2>How It Works</h2>
+        <p>A simple three-step process to reveal your carbon footprint.</p>
+      </div>
+      <div class="how-it-works-container">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>Input Your Data</h3>
+          <p>Provide information about your household's energy use, transportation habits, and consumption patterns.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>Visualize Your Impact</h3>
+          <p>Our visualizer analyzes your data to show you the key sources of your emissions in clear, intuitive charts.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>Get Actionable Insights</h3>
+          <p>Receive personalized recommendations and resources to help you reduce your footprint and save money.</p>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 40px;">
+        <a href="calculate.html" class="cta-button">Start My Calculation</a>
+      </div>
+    </div>
+  </section>
+  
+  <section id="emissions" class="section section-dark">
+    <div class="container">
+      <div class="section-title">
+        <h2>Key Sources of Emissions</h2>
+        <p>Learn about the main areas that contribute to your household carbon footprint.</p>
+      </div>
+      <div class="emission-flex-container">
+        
+        <div class="emission-card">
+          <div class="card-face card-front">
+            <img src="energy-icon.png" alt="Energy Icon">
+            <h3>Home Energy</h3>
+          </div>
+          <div class="card-face card-back">
+            <p>Heating, cooling, lighting, and appliances are primary sources of direct household emissions.</p>
+          </div>
+        </div>
+
+        <div class="emission-card">
+          <div class="card-face card-front">
+            <img src="transport-icon.png" alt="Transport Icon">
+            <h3>Transportation</h3>
+          </div>
+          <div class="card-face card-back">
+            <p>Emissions from personal vehicles, air travel, and public transport driven by fossil fuels.</p>
+          </div>
+        </div>
+
+        <div class="emission-card">
+          <div class="card-face card-front">
+            <img src="consumption-icon.png" alt="Consumption Icon">
+            <h3>Consumption & Diet</h3>
+          </div>
+          <div class="card-face card-back">
+            <p>The lifecycle of products and food, especially meat and dairy, has a large hidden footprint.</p>
+          </div>
+        </div>
+
+        <div class="emission-card">
+          <div class="card-face card-front">
+            <img src="waste-icon.png" alt="Waste Icon">
+            <h3>Waste Management</h3>
+          </div>
+          <div class="card-face card-back">
+            <p>Waste sent to landfills decomposes and releases methane, a potent greenhouse gas.</p>
+          </div>
+        </div>
+        
+      </div>
+      
+      <div class="emission-details" style="margin-top: 60px;">
+        <h2 style="text-align: center; margin-bottom: 20px;">What Are Carbon Emissions and Carbon Footprint?</h2>
+        
+        <div class="image-text-pair">
+          <img src="carbonemissionpicture.jpg" alt="Industrial carbon emissions">
+          <div class="content">
+            <p><strong>Carbon emissions</strong> are the release of carbon compounds, primarily carbon dioxide (CO<sub>2</sub>), into the atmosphere. While carbon is a naturally occurring gas, human activities have significantly increased its concentration in the atmosphere. This happens mainly through the burning of fossil fuels like coal, oil, and gas. Once in the atmosphere, these compounds act as a blanket, trapping heat and contributing to the greenhouse effect, which leads to global warming and climate change.</p>
+            <p style="margin-top: 15px;">A <strong>carbon footprint</strong> is a measure of the total amount of greenhouse gases, expressed as carbon dioxide equivalents (CO<sub>2</sub>), that are generated by an individual, product, company, or country. It's a way to quantify the total climate impact of an activity or lifestyle. The average global carbon footprint is about 4 tons per person, but in the United States, it's significantly higher at 16 tons per person. To have a chance of avoiding a 2°C rise in global temperatures, the average global footprint needs to drop to under 2 tons by 2050.</p>
+          </div>
+        </div>
+
+        <h3 style="text-align: center; margin-top: 40px; margin-bottom: 20px;">How We Emit Carbon and Its Impact on the World</h3>
+        <div class="image-text-pair reverse">
+          <img src="global-emissions-sources.png" alt="Various sources of global emissions like factories, cars, deforestation">
+          <div class="content">
+            <p>Human activities are the primary cause of the rapid increase in atmospheric carbon dioxide since the Industrial Revolution. The main ways we release carbon into the atmosphere are:</p>
+            <ul style="margin-left: 20px; margin-bottom: 30px;">
+                <li><strong>Generating Power:</strong> The largest source of global greenhouse gas emissions comes from burning fossil fuels for electricity and heat.</li>
+                <li><strong>Manufacturing:</strong> The production of goods like cement, iron, electronics, and plastics relies heavily on burning fossil fuels for energy, making it a major contributor to emissions.</li>
+                <li><strong>Transportation:</strong> Most cars, trucks, ships, and planes run on fossil fuels, with road vehicles accounting for the largest share of emissions in this sector.</li>
+                <li><strong>Agriculture and Deforestation:</strong> The food production process, from land clearing to the use of fertilizers and livestock digestion, generates emissions of carbon dioxide, methane, and other greenhouse gases. When forests are cleared, they release the carbon they were storing, which also reduces nature's ability to absorb carbon dioxide from the atmosphere.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="image-text-pair">
+          <img src="climate-change-impacts.png" alt="Illustrations of climate change impacts like melting ice caps and rising sea levels">
+          <div class="content">
+            <p>These emissions amplify the natural greenhouse effect, causing the Earth's average temperature to rise. This warming has far-reaching effects on the planet, including sea-level rise and changes to world agriculture. Another significant consequence is <strong>ocean acidification</strong>, which occurs when the ocean absorbs excess carbon dioxide, making it more acidic and interfering with the ability of marine life to build shells and skeletons.</p>
+          </div>
+        </div>
+        
+        <h3 style="text-align: center; margin-top: 40px; margin-bottom: 20px;">The Household Carbon Footprint: Seven Key Factors</h3>
+        <div class="image-text-pair reverse">
+          <img src="household-consumption.png" alt="Household with various daily activities leading to consumption">
+          <div class="content">
+            <p>A household's carbon footprint is a reflection of many daily activities. While energy and transportation are major parts of this, here are at least seven key factors that contribute to household emissions:</p>
+            <ul style="margin-left: 20px;">
+                <li><strong>Home Energy Consumption:</strong> This includes emissions from fossil fuels burned for heating and cooling, as well as the electricity used for lighting, appliances, and other plug loads.</li>
+                <li><strong>Transportation:</strong> Emissions from personal vehicles are determined by how much you drive and your car's fuel efficiency. Air travel and public transport also contribute to this footprint.</li>
+                <li><strong>Consumption and Diet:</strong> Food can account for 10-30% of a household's carbon footprint. The production of meat and dairy has a much higher footprint than plant-based foods. The entire lifecycle of products we buy also contributes, including manufacturing, transportation, and waste.</li>
+                <li><strong>Waste Management:</strong> The waste we send to landfills decomposes and releases methane, a potent greenhouse gas. Food scraps, in particular, are a major source of this methane.</li>
+                <li><strong>Water Use:</strong> Energy is consumed in the process of treating and pumping water to your home and then treating the sewage.</li>
+                <li><strong>Household Size:</strong> The number of people in a household is a significant factor in carbon emissions.</li>
+                <li><strong>Living Area:</strong> The total living area of a household directly influences its carbon footprint. Larger homes often require more energy for heating and cooling, leading to higher emissions.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+  
+  <section id="about" class="section section-light">
+    <div class="container">
+        <div class="section-title">
+            <h2>About GREANIX</h2>
+        </div>
+        <div class="image-text-block">
+            <img src="greanixdashboard.png" alt="GREANIX Dashboard Screenshot">
+            <div class="content">
+                <h3>Our Mission</h3>
+                <p>We believe that understanding your environmental impact is the first step toward a more sustainable future. GREANIX was founded to demystify complex climate data, providing individuals and families with a clear, actionable way to see their footprint and make positive changes.</p>
+                <p>Our tool simplifies the process, translating everyday activities into quantifiable emissions data, empowering you to contribute to a healthier planet.</p>
+            </div>
+        </div>
+        <div class="image-text-block reverse">
+            <img src="greanix-community.png" alt="Community action photo">
+            <div class="content">
+                <h3>Beyond the Numbers</h3>
+                <p>A carbon footprint isn't just about a number; it's about a story of your choices. Our platform offers more than a simple calculation. We provide personalized insights and a resource library full of practical tips, from energy-saving home upgrades to smarter transportation choices. Join a growing community of people committed to making a difference.</p>
+            </div>
+        </div>
+    </div>
+  </section>
+  
+
+  <footer>
+    <p>&copy; 2025 GREANIX. All rights reserved.</p>
+  </footer>
+<script src="auth.js"></script>
+</body>
+</html>

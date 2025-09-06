@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GREANIX - Sign Up</title>
+    <link rel="icon" type="image/png" href="greanixlogo.png">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            overscroll-behavior: none;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #ffffff;
+            padding: 10px 30px;
+            border-bottom: 3px solid #f9fbf9;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+
+        .navbar-left { display: flex; align-items: center; }
+        .navbar-left img { height: 50px; margin-right: 10px; }
+        .navbar-left span { font-size: 22px; font-weight: 600; color: #28a745; }
+
+        .navbar-center {
+            display: flex;
+            gap: 15px;
+        }
+
+        .navbar-center a {
+            text-decoration: none;
+            color: #343a40;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .navbar-center a:hover {
+            background-color: #e0f2f1;
+            color: #00796b;
+        }
+        
+        .form-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #dee2e6;
+        }
+        
+        .form-container h2 { color: #1d4c4f; margin-bottom: 10px; }
+        .form-container p { margin-bottom: 30px; }
+
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-field {
+            flex: 1 1 45%;
+            display: flex;
+            flex-direction: column;
+            min-width: 250px;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        input[type="text"], input[type="email"], input[type="password"] {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+            border-color: #28a745;
+            outline: none;
+        }
+
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 40px;
+            border-top: 1px solid #dee2e6;
+            padding-top: 25px;
+        }
+
+        .form-buttons button {
+            padding: 12px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn-next { background-color: #28a745; color: white; }
+        .btn-next:hover { background-color: #218838; transform: translateY(-2px); }
+
+        @media (max-width: 900px) {
+            .navbar-center, .navbar-right {
+                display: none;
+            }
+            
+            .navbar-left {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .steps {
+                flex-wrap: wrap;
+            }
+            
+            .step {
+                width: 45%;
+                margin-bottom: 10px;
+            }
+
+            .form-container {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .form-field {
+                min-width: 100%;
+            }
+
+            .chart-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+      <div class="navbar-left">
+        <img src="greanixlogo.png" alt="GREANIX Logo">
+        <span>GREANIX</span>
+      </div>
+      <div class="navbar-center">
+        <a href="ex4.html">Home</a>
+        <a href="calculate.html">Calculator</a>
+        <a href="ex4.html#about">About</a>
+      </div>
+    </div>
+
+    <div class="form-container" style="margin-top: 50px;">
+        <h2>Create Your Account</h2>
+        <p>Join GREANIX to start tracking your carbon footprint.</p>
+        
+        <form id="signup-form">
+            <div class="form-group">
+                <div class="form-field">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                </div>
+                <div class="form-field">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-field" style="flex-grow: 2;">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a strong password" required minlength="6">
+                </div>
+            </div>
+            <div class="form-buttons" style="justify-content: flex-end;">
+                <button type="submit" class="btn-next">Sign Up</button>
+            </div>
+            <p style="text-align: center; margin-top: 20px;">
+                Already have an account? <a href="/login.html">Log In</a>
+            </p>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('signup-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Account created successfully! Please log in.');
+                    window.location.href = '/login.html';
+                } else {
+                    const errorResult = await response.json();
+                    alert(`Signup failed: ${errorResult.message}`);
+                }
+            } catch (error) {
+                console.error('An error occurred:', error);
+                alert('An error occurred during signup. Please try again.');
+            }
+        });
+    </script>
+    <script src="auth.js"></script>
+</body>
+</html>

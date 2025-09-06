@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GREANIX - Carbon Footprint Results</title>
+  <link rel="icon" type="image/png" href="greanixlogo.png">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    html, body {
+      overscroll-behavior: none;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4fdf6;
+      color: #333;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #ffffff;
+      padding: 10px 30px;
+      border-bottom: 3px solid #28a745;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .navbar-left { display: flex; align-items: center; }
+    .navbar-left img { height: 50px; margin-right: 10px; }
+    .navbar-left span { font-size: 22px; font-weight: 600; color: #28a745; }
+    .navbar-center a { margin: 0 15px; text-decoration: none; color: #555; font-weight: 500; }
+    .navbar-center a.active, .navbar-center a:hover { color: #155724; }
+    
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 30px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2e7d32;
+      margin-bottom: 10px;
+    }
+    
+    .results-summary {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 20px;
+        background-color: #e8f5e9;
+        border-radius: 8px;
+        border-left: 5px solid #4caf50;
+    }
+    
+    .total-footprint {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #1b5e20;
+    }
+
+    .chart-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-top: 20px;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 50px;
+    }
+
+    .btn-save {
+      margin-top: 30px;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      background-color: #28a745;
+      color: white;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    
+    .btn-save:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+    }
+    
+    .suggestions {
+      margin-top: 40px;
+      padding: 20px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      text-align: left;
+    }
+
+    .suggestions h3 {
+      color: #1d4c4f;
+      margin-bottom: 10px;
+    }
+
+    .suggestions ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .suggestions li {
+      margin-bottom: 10px;
+      background-color: #f0fff4;
+      padding: 10px;
+      border-left: 3px solid #28a745;
+    }
+
+    @media (max-width: 900px) {
+        .navbar-center, .navbar-right {
+            display: none;
+        }
+        
+        .navbar-left {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .steps {
+            flex-wrap: wrap;
+        }
+        
+        .step {
+            width: 45%;
+            margin-bottom: 10px;
+        }
+
+        .form-container {
+            padding: 20px;
+            margin: 20px;
+        }
+        
+        .form-field {
+            min-width: 100%;
+        }
+
+        .chart-container {
+            grid-template-columns: 1fr;
+        }
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="navbar-left">
+      <img src="greanixlogo.png" alt="GREANIX Logo">
+      <span>GREANIX</span>
+    </div>
+    <div class="navbar-center">
+      <a href="ex4.html">Home</a>
+      <a href="calculate.html" class="active">Calculator</a>
+      <a href="profile.html">Profile</a>
+      <a href="ex4.html#about">About</a>
+    </div>
+    <div class="navbar-right" id="navbar-right"></div>
+  </div>
+
+  <div class="container" id="results-container">
+    <h2>Your Monthly Carbon Footprint</h2>
+    
+    <div id="results-summary" class="results-summary">
+      <p>Your estimated total emissions are:</p>
+      <div id="total-footprint" class="total-footprint">-- kg CO₂e</div>
+      <p style="margin-top: 10px;">This is a breakdown of your emissions based on your inputs.</p>
+    </div>
+
+    <div class="chart-container">
+        <div><canvas id="barChart"></canvas></div>
+        <div><canvas id="pieChart"></canvas></div>
+    </div>
+
+    <button class="btn-save" id="save-button" style="display:none;">Save to Profile</button>
+    
+    <div id="suggestions-container" class="suggestions">
+      <h3 style="color: #2e7d32; text-align: center; margin-bottom: 15px;">💡 How You Can Improve</h3>
+      <div id="suggestions-content">
+        <ul>
+          <li>Please fill out the form to get personalized suggestions.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" id="no-data-container" style="display: none;">
+      <div class="no-data">
+        <h2>No Data Found</h2>
+        <p>We couldn't find any calculation data. Please go back and fill out the calculator to see your results.</p>
+        <a href="calculate.html" style="text-decoration: none; background-color: #28a745; color: white; padding: 10px 20px; border-radius: 5px; display: inline-block; margin-top: 20px;">Start Calculation</a>
+      </div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const allData = JSON.parse(localStorage.getItem('carbonFootprintData'));
+    const userId = sessionStorage.getItem('greanixUserId');
+
+    // Step 1: Define Emissions Factors
+    const emissionFactors = {
+        // Home Energy
+        electricity: 0.5,
+        naturalGas: 2.5,
+        kerosene: 3,
+        lpg: 3.5,
+        wood: 2,
+        solar: 0.5,
+        // Transportation
+        car: 0.2,
+        bus: 0.05,
+        train: 0.02,
+        flight: 0.25,
+        // Consumption & Diet
+        rice: 1.5,
+        pulses: 0.8,
+        dairy: 2.4,
+        mutton: 30,
+        chicken: 6,
+        fish: 5,
+        shopping: 5
+    };
+
+    // Check for required data
+    if (!allData || !allData.homeEnergy || !allData.transportation || !allData.consumption) {
+        document.getElementById('results-container').style.display = 'none';
+        document.getElementById('no-data-container').style.display = 'block';
+        return;
+    }
+    
+    // Step 2: Calculate Emissions for each category from stored data
+    const homeEnergyData = allData.homeEnergy || {};
+    const transportationData = allData.transportation || {};
+    const consumptionData = allData.consumption || {};
+    
+    const homeEnergyEmissions = (homeEnergyData.electricity * emissionFactors.electricity) +
+                                (homeEnergyData.naturalGas * emissionFactors.naturalGas) +
+                                (homeEnergyData.kerosene * emissionFactors.kerosene) +
+                                (homeEnergyData.lpg * emissionFactors.lpg) +
+                                (homeEnergyData.wood * emissionFactors.wood) -
+                                (homeEnergyData.solar * emissionFactors.solar);
+
+    const transportationEmissions = (transportationData.carKm * emissionFactors.car) +
+                                    (transportationData.busKm * emissionFactors.bus) +
+                                    (transportationData.trainKm * emissionFactors.train) +
+                                    (transportationData.flightKm * emissionFactors.flight);
+
+    const consumptionEmissions = (consumptionData.riceKg * emissionFactors.rice) +
+                                 (consumptionData.pulsesKg * emissionFactors.pulses) +
+                                 (consumptionData.dairyKg * emissionFactors.dairy) +
+                                 (consumptionData.muttonKg * emissionFactors.mutton) +
+                                 (consumptionData.chickenKg * emissionFactors.chicken) +
+                                 (consumptionData.fishKg * emissionFactors.fish) +
+                                 (consumptionData.shoppingItems * emissionFactors.shopping);
+
+    // Step 3: Calculate Total Emissions and breakdown
+    const totalEmissions = homeEnergyEmissions + transportationEmissions + consumptionEmissions;
+    const breakdown = {
+      homeEnergy: homeEnergyEmissions,
+      transportation: transportationEmissions,
+      consumption: consumptionEmissions
+    };
+
+    document.getElementById('total-footprint').textContent = `${totalEmissions.toFixed(2)} kg CO₂e`;
+
+    // Breakdown for charts
+    const breakdownData = [
+      Math.max(0, breakdown.homeEnergy),
+      Math.max(0, breakdown.transportation),
+      Math.max(0, breakdown.consumption)
+    ];
+
+    const labels = ['Home Energy', 'Transportation', 'Consumption'];
+    const backgroundColors = ['#66bb6a', '#42a5f5', '#ffca28'];
+
+    // Bar Chart
+    new Chart(document.getElementById('barChart'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Emissions (kg CO₂/month)',
+          data: breakdownData,
+          backgroundColor: backgroundColors
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: 'Carbon Emissions by Category',
+            font: { size: 16 }
+          }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    // Pie Chart
+    new Chart(document.getElementById('pieChart'), {
+      type: 'pie',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: breakdownData,
+          backgroundColor: backgroundColors
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Emission Sources Distribution',
+            font: { size: 16 }
+          }
+        }
+      }
+    });
+    
+    // Suggestions based on highest category
+    const categories = {
+        'Home Energy': breakdown.homeEnergy,
+        'Transportation': breakdown.transportation,
+        'Consumption': breakdown.consumption
+    };
+
+    const highestCategory = Object.keys(categories).reduce((a, b) => categories[a] > categories[b] ? a : b);
+    const suggestionsContent = document.getElementById('suggestions-content');
+    
+    let suggestionsHTML = '';
+    switch (highestCategory) {
+        case 'Home Energy':
+            suggestionsHTML = `
+            <p>Your <strong>Home Energy</strong> usage is your biggest contributor. Here are some tips:</p>
+            <ul>
+              <li><strong>Switch to LED lighting:</strong> They use up to 80% less energy than traditional bulbs.</li>
+              <li><strong>Unplug electronics:</strong> Appliances on standby still draw power.</li>
+              <li><strong>Improve insulation:</strong> Seal gaps around windows and doors to prevent heat/cool air loss.</li>
+              <li><strong>Consider smart thermostats:</strong> They automatically adjust temperatures to save energy.</li>
+              <li><strong>Use energy-efficient appliances:</strong> Look for appliances with a high energy-efficiency rating.</li>
+              <li><strong>Utilize natural light:</strong> Open blinds and curtains during the day to reduce the need for electric lighting.</li>
+            </ul>`;
+            break;
+        case 'Transportation':
+            suggestionsHTML = `
+            <p>Your <strong>Transportation</strong> habits have the largest impact. Consider these changes:</p>
+            <ul>
+              <li><strong>Use Public Transport:</strong> Opt for buses or trains for your daily commute.</li>
+              <li><strong>Walk or Cycle:</strong> For short distances, this is the most eco-friendly option.</li>
+              <li><strong>Carpool:</strong> Share rides with colleagues or friends to reduce individual vehicle emissions.</li>
+              <li><strong>Combine errands:</strong> Plan your trips to complete multiple tasks in one go.</li>
+              <li><strong>Maintain Your Vehicle:</strong> A well-maintained car is more fuel-efficient.</li>
+              <li><strong>Drive smoothly:</strong> Avoid rapid acceleration and braking to save fuel.</li>
+            </ul>`;
+            break;
+        case 'Consumption':
+            suggestionsHTML = `
+            <p>Your <strong>Consumption & Diet</strong> choices are your main source of emissions. Try these tips:</p>
+            <ul>
+              <li><strong>Reduce Red Meat:</strong> Mutton has a very high carbon footprint. Try plant-based alternatives.</li>
+              <li><strong>Shop Local:</strong> Buying locally produced goods reduces transportation emissions.</li>
+              <li><strong>Minimize Food Waste:</strong> Plan your meals and compost leftovers if possible.</li>
+              <li><strong>Buy Less, Choose Well:</strong> Opt for durable, long-lasting products over disposable ones.</li>
+              <li><strong>Go for seasonal produce:</strong> Eating fruits and vegetables that are in season reduces the need for energy-intensive greenhouses.</li>
+              <li><strong>Bring your own bags:</strong> Reduce plastic waste by using reusable bags for shopping.</li>
+            </ul>`;
+            break;
+        default:
+            suggestionsHTML = `
+            <p>Great job! To continue reducing your footprint, focus on small changes in each category.</p>
+            <ul>
+              <li><strong>Educate others:</strong> Share your knowledge and encourage friends and family to be more mindful.</li>
+              <li><strong>Support sustainable companies:</strong> Choose products from businesses committed to ethical and eco-friendly practices.</li>
+            </ul>`;
+    }
+    suggestionsContent.innerHTML = suggestionsHTML;
+
+    // Save to Profile functionality
+    if (userId) {
+        document.getElementById('save-button').style.display = 'inline-block';
+        document.getElementById('save-button').addEventListener('click', async () => {
+            const payload = {
+                userId: userId,
+                totalEmissions: totalEmissions,
+                breakdown: breakdown
+            };
+            
+            const response = await fetch('/api/save-footprint', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            const result = await response.json();
+            if (response.ok) {
+                alert(result.message);
+            } else {
+                alert('Failed to save footprint: ' + result.message);
+            }
+        });
+    }
+});
+</script>
+<script src="auth.js"></script>
+</body>
+</html>
