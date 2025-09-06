@@ -172,9 +172,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const monthSelector = document.getElementById('month-selector');
     const summaryDisplay = document.getElementById('monthly-summary-display');
 
+    // This NEW function displays the LAST SAVED VALUE
     function displayMonthSummary(selectedDate) {
         const year = selectedDate.getFullYear();
-        const month = selectedDate.getMonth(); // 0-11
+        const month = selectedDate.getMonth();
 
         const startOfMonth = new Date(year, month, 1);
         const endOfMonth = new Date(year, month + 1, 0);
@@ -185,24 +186,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         if (monthEntries.length > 0) {
-            const totalSum = monthEntries.reduce((acc, entry) => acc + entry.totalEmissions, 0);
-            const avgTotal = totalSum / monthEntries.length;
-
-            const breakdownSum = monthEntries.reduce((acc, entry) => {
-                acc.homeEnergy += entry.breakdown.homeEnergy;
-                acc.transportation += entry.breakdown.transportation;
-                acc.consumption += entry.breakdown.consumption;
-                return acc;
-            }, { homeEnergy: 0, transportation: 0, consumption: 0 });
-
+            // Since history is already sorted, the last entry in this filtered
+            // array is the last one saved for that specific month.
+            const lastEntryOfMonth = monthEntries[monthEntries.length - 1];
+            
             summaryDisplay.innerHTML = `
                 <p style="font-size: 1.5rem; font-weight: bold;">
-                    Average Footprint: ${avgTotal.toFixed(2)} kg CO₂e
+                    Last Footprint for this Month: ${lastEntryOfMonth.totalEmissions.toFixed(2)} kg CO₂e
                 </p>
                 <ul style="list-style-type: none; padding: 0; margin-top: 10px;">
-                    <li><strong>Home Energy:</strong> ${(breakdownSum.homeEnergy / monthEntries.length).toFixed(2)} kg</li>
-                    <li><strong>Transportation:</strong> ${(breakdownSum.transportation / monthEntries.length).toFixed(2)} kg</li>
-                    <li><strong>Consumption:</strong> ${(breakdownSum.consumption / monthEntries.length).toFixed(2)} kg</li>
+                    <li><strong>Home Energy:</strong> ${lastEntryOfMonth.breakdown.homeEnergy.toFixed(2)} kg</li>
+                    <li><strong>Transportation:</strong> ${lastEntryOfMonth.breakdown.transportation.toFixed(2)} kg</li>
+                    <li><strong>Consumption:</strong> ${lastEntryOfMonth.breakdown.consumption.toFixed(2)} kg</li>
                 </ul>
             `;
         } else {
@@ -227,29 +222,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- END OF NEW CODE BLOCK ---
 
-    // --- Monthly Line Chart ---
+    // --- Monthly Line Chart (Showing LAST value, not average) ---
     const monthlyData = {};
     history.forEach(entry => {
         const monthYear = new Date(entry.date).toLocaleString('default', { month: 'short', year: 'numeric' });
-        if (!monthlyData[monthYear]) monthlyData[monthYear] = [];
-        monthlyData[monthYear].push(entry.totalEmissions);
+        // This will simply overwrite the value for the month with each new entry.
+        // Since the history is sorted by date, the last one will be the final value.
+        monthlyData[monthYear] = entry.totalEmissions;
     });
 
     const monthlyLabels = Object.keys(monthlyData);
-    const monthlyValues = monthlyLabels.map(month => {
-        const monthEntries = monthlyData[month];
-        return monthEntries.reduce((a, b) => a + b, 0) / monthEntries.length;
-    });
+    // Now we can just take the values directly, no averaging needed.
+    const monthlyValues = Object.values(monthlyData);
 
     new Chart('monthlyTrendChart', {
         type: 'bar',
         data: {
             labels: monthlyLabels,
             datasets: [{
-                label: 'Avg Monthly CO₂e (kg)',
+                label: 'Last Saved CO₂e (kg)', // Updated label for clarity
                 data: monthlyValues,
                 backgroundColor: '#28a745',
-                barPercentage: 0.5 // <-- Added for bar width
+                barPercentage: 0.5
             }]
         }
     });
@@ -278,45 +272,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     const chartColors = ['#66bb6a', '#42a5f5', '#ffca28'];
     const pieLabels = ['Home Energy', 'Transportation', 'Consumption'];
     
-    // --- Monthly Pie Chart (Latest Month Average) ---
-    // First, sort history to make sure the latest entry is truly last
-    history.sort((a, b) => new Date(a.date) - new Date(b.date));
+    // --- Monthly Pie Chart (Cumulative Year-to-Date Average) ---
+    const yearToDateEntries = history.filter(e => new Date(e.date).getFullYear() === new Date().getFullYear());
 
-    // Get the date of the absolute latest entry
-    const latestEntryDate = new Date(history[history.length - 1].date);
-    const latestYear = latestEntryDate.getFullYear();
-    const latestMonth = latestEntryDate.getMonth();
-
-    // Filter to get ALL entries from that same month and year
-    const latestMonthEntries = history.filter(entry => {
-        const entryDate = new Date(entry.date);
-        return entryDate.getFullYear() === latestYear && entryDate.getMonth() === latestMonth;
+    const monthlyAverages = {};
+    yearToDateEntries.forEach(entry => {
+        const monthYear = new Date(entry.date).toLocaleString('default', { month: 'short', year: 'numeric' });
+        if (!monthlyAverages[monthYear]) {
+            monthlyAverages[monthYear] = { homeEnergy: 0, transportation: 0, consumption: 0, count: 0 };
+        }
+        monthlyAverages[monthYear].homeEnergy += entry.breakdown.homeEnergy;
+        monthlyAverages[monthYear].transportation += entry.breakdown.transportation;
+        monthlyAverages[monthYear].consumption += entry.breakdown.consumption;
+        monthlyAverages[monthYear].count++;
     });
 
-    // Calculate the average breakdown for that month
-    const avgBreakdown = { homeEnergy: 0, transportation: 0, consumption: 0 };
-    latestMonthEntries.forEach(entry => {
-        avgBreakdown.homeEnergy += entry.breakdown.homeEnergy;
-        avgBreakdown.transportation += entry.breakdown.transportation;
-        avgBreakdown.consumption += entry.breakdown.consumption;
-    });
+    const cumulativeBreakdown = { homeEnergy: 0, transportation: 0, consumption: 0 };
+    let monthCount = 0;
+    for (const month in monthlyAverages) {
+        cumulativeBreakdown.homeEnergy += monthlyAverages[month].homeEnergy / monthlyAverages[month].count;
+        cumulativeBreakdown.transportation += monthlyAverages[month].transportation / monthlyAverages[month].count;
+        cumulativeBreakdown.consumption += monthlyAverages[month].consumption / monthlyAverages[month].count;
+        monthCount++;
+    }
 
-    const entryCount = latestMonthEntries.length || 1;
-    const latestMonthAvgData = [
-        avgBreakdown.homeEnergy / entryCount,
-        avgBreakdown.transportation / entryCount,
-        avgBreakdown.consumption / entryCount
+    const cumulativeAvgData = [
+        cumulativeBreakdown.homeEnergy / monthCount,
+        cumulativeBreakdown.transportation / monthCount,
+        cumulativeBreakdown.consumption / monthCount
     ];
 
-    // Update the chart title to be more accurate
-    const latestMonthName = latestEntryDate.toLocaleString('default', { month: 'long' });
-    document.querySelector('#monthlyPieChart').parentElement.querySelector('h3').textContent = `Breakdown (${latestMonthName})`;
+    // Update the chart title
+    document.querySelector('#monthlyPieChart').parentElement.querySelector('h3').textContent = `Breakdown (Year-to-Date Average)`;
 
     new Chart('monthlyPieChart', { 
         type: 'pie', 
         data: { 
             labels: pieLabels, 
-            datasets: [{ data: latestMonthAvgData, backgroundColor: chartColors }] 
+            datasets: [{ data: cumulativeAvgData, backgroundColor: chartColors }] 
         } 
     });
 

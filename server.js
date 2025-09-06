@@ -154,20 +154,29 @@ app.post('/reset-password', async (req, res) => {
     }
 });
 
-
-// SAVE FOOTPRINT DATA
+// SAVE FOOTPRINT DATA - CORRECTED VERSION
 app.post('/api/save-footprint', async (req, res) => {
-    // ... (Your existing save-footprint code remains the same)
     try {
         const { userId, totalEmissions, breakdown } = req.body;
+
         if (!userId) {
             return res.status(400).json({ message: 'User ID is required.' });
         }
+        
+        // Step 1: Find the user by their ID
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        // Step 2: Create the new history entry
         const newFootprintEntry = {
             totalEmissions: totalEmissions,
             breakdown: breakdown,
             date: new Date()
         };
+
+        // Step 3: Add the new entry to the user's history array
         await User.findByIdAndUpdate(userId, { $push: { footprintHistory: newFootprintEntry } });
         res.status(200).json({ message: 'Footprint saved successfully!' });
     } catch (error) {
