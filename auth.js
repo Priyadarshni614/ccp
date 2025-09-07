@@ -5,11 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Part 1: Navbar Management ---
     const navbarRight = document.getElementById('navbar-right');
     if (userId && navbarRight) {
-        // User is logged in: Show Profile and Logout
+        // User is logged in: Show Username and Logout
         navbarRight.innerHTML = `
             <span id="nav-username" style="margin-right: 15px; font-weight: 500; color: #333;"></span>
-            <button class="login" style="padding: 8px 15px;" onclick="window.location.href='profile.html'">Profile</button>
-            <button class="signup" style="padding: 8px 15px;" onclick="logout()">Logout</button>
+            <button class="button" id="logout-button" onclick="logout()">Logout</button>
         `;
         // Fetch and display the username
         fetchUsername(userId);
@@ -41,7 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function logout() {
     sessionStorage.removeItem('greanixUserId');
-    // Redirect to homepage after logout to see the change
+    
+    // Add this line to show a confirmation message
+    alert('You have been successfully logged out.');
+    
+    // Redirect to homepage after the user clicks "OK" on the alert
     window.location.href = '/'; 
 }
 

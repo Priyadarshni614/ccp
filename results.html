@@ -118,6 +118,27 @@
       border-left: 3px solid #28a745;
     }
 
+    /* Add this CSS for the logout button */
+    #navbar-right .button, #navbar-right button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.3s ease, transform 0.2s;
+      background-color: #28a745; /* Green background */
+      color: #ffffff; /* White text */
+      margin-left: 10px;
+    }
+
+    #navbar-right .button:hover, #navbar-right button:hover {
+        background-color: #218838; /* Darker green on hover */
+        transform: translateY(-2px);
+    }
+
     @media (max-width: 900px) {
         .navbar-center, .navbar-right {
             display: none;
