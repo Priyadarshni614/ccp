@@ -3,141 +3,85 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GREANIX - Carbon Footprint Calculator</title>
+  <title>GREANIX - Calculator Instructions</title>
   <link rel="icon" type="image/png" href="greanixlogo.png">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html, body {
-      overscroll-behavior: none;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #f8f9fa;
       color: #343a40;
       line-height: 1.6;
     }
-
     .navbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       background-color: #ffffff;
       padding: 10px 30px;
-      border-bottom: 3px solid #f4f6f4;
+      border-bottom: 3px solid #f9fbf9;
       box-shadow: 0 2px 8px rgba(0,0,0,0.07);
     }
-
     .navbar-left { display: flex; align-items: center; }
     .navbar-left img { height: 50px; margin-right: 10px; }
     .navbar-left span { font-size: 22px; font-weight: 600; color: #28a745; }
-    .navbar-center a { margin: 0 15px; text-decoration: none; color: #555; font-weight: 500; padding: 8px 16px; border-radius: 8px; }
-    .navbar-center a:hover, .navbar-center a.active { background-color: #e9f7ef; color: #155724; }
-
-    .steps {
+    .navbar-center { display: flex; flex-grow: 1; justify-content: center; }
+    .navbar-center a { margin: 0 15px; text-decoration: none; color: #555; font-weight: 500; }
+    .navbar-right {
       display: flex;
-      justify-content: center;
-      margin: 30px 0;
+      align-items: center;
     }
-
-    .step {
-      padding: 15px 25px;
-      margin: 0 10px;
-      border-radius: 12px;
-      text-align: center;
-      background-color: #ffffff;
-      border: 1px solid #dee2e6;
+    .navbar-right .button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.3s ease;
     }
-
-    .step.active {
-      border-color: #28a745;
-      background-color: #e9f7ef;
-      font-weight: bold;
-      color: #155724;
+    .navbar-right .profile-button {
+      background-color: #f0f0f0;
+      color: #343a40;
+      margin-right: 10px;
     }
-
-    .form-container {
+    .navbar-right .profile-button:hover {
+      background-color: #e0e0e0;
+    }
+    .navbar-right #logout-button {
+      background-color: #28a745; /* Green background */
+      color: #ffffff; /* White text */
+    }
+    .navbar-right #logout-button:hover {
+      background-color: #218838; /* Darker green on hover */
+    }
+    .container {
       max-width: 900px;
       margin: 40px auto;
       background-color: #ffffff;
       padding: 40px;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      border: 1px solid #dee2e6;
     }
-    
-    .form-container h2 { color: #1d4c4f; margin-bottom: 10px; }
-    .form-container p { margin-bottom: 30px; }
-
-    .form-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 25px;
-      margin-bottom: 25px;
-    }
-
-    .form-field {
-      flex: 1 1 45%;
-      display: flex;
-      flex-direction: column;
-      min-width: 250px;
-    }
-
-    label {
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #343a40;
-    }
-
-    input[type="text"] {
-      padding: 12px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      transition: border-color 0.3s;
-    }
-    
-    input[type="text"]:focus {
-        border-color: #28a745;
-        outline: none;
-    }
-
-    .form-note {
-      font-size: 13px;
-      color: #777;
-      margin-top: 8px;
-    }
-
-    .form-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 40px;
-      border-top: 1px solid #dee2e6;
-      padding-top: 25px;
-    }
-
-    .form-buttons button {
+    h2 { color: #1d4c4f; margin-bottom: 20px; }
+    p { margin-bottom: 15px; }
+    ul { list-style-position: inside; padding-left: 10px; margin-bottom: 20px; }
+    li { margin-bottom: 10px; }
+    .btn-back {
+      display: inline-block;
+      margin-top: 20px;
       padding: 12px 25px;
       font-size: 16px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
-      transition: background-color 0.3s, transform 0.2s;
+      text-decoration: none;
+      background-color: #28a745;
+      color: white;
     }
-
-    .btn-prev { background-color: #6c757d; color: white; }
-    .btn-prev:hover { background-color: #5a6268; transform: translateY(-2px); }
-    .btn-next { background-color: #28a745; color: white; }
-    .btn-next:hover { background-color: #218838; transform: translateY(-2px); }
   </style>
 </head>
 <body>
@@ -148,71 +92,44 @@
     </div>
     <div class="navbar-center">
       <a href="ex4.html">Home</a>
-      <a href="calculate.html" class="active">Calculator</a>
+      <a href="calculate.html">Calculator</a>
       <a href="profile.html">Profile</a>
-      <a href="about.html">About</a>
     </div>
-    <div class="navbar-right" id="navbar-right"></div>
-  </div>
-
-  <div class="steps">
-    <div class="step">Home Energy</div>
-    <div class="step active">Transportation</div>
-    <div class="step">Appliances</div>
-    <div class="step">Results</div>
-  </div>
-
-  <div class="form-container">
-    <h2>🚗 Transportation</h2>
-    <p>Enter your monthly travel details. The more accurate the data, the better the result!</p>
-
-    <div class="form-group">
-      <div class="form-field">
-        <label for="car-km">Personal Car Distance (km)</label>
-        <input type="text" id="car-km" placeholder="e.g., 500" />
-        <span class="form-note">Total kilometers driven in a month.</span>
-      </div>
-      <div class="form-field">
-        <label for="bus-km">Bus Travel (km)</label>
-        <input type="text" id="bus-km" placeholder="e.g., 100" />
-      </div>
-    </div>
-
-    <div class="form-group">
-      <div class="form-field">
-        <label for="train-km">Train / Metro Travel (km)</label>
-        <input type="text" id="train-km" placeholder="e.g., 250" />
-      </div>
-      <div class="form-field">
-        <label for="flight-km">Air Travel (km)</label>
-        <input type="text" id="flight-km" placeholder="e.g., 2500" />
-        <span class="form-note">Total flight distance in a month.</span>
-      </div>
-    </div>
-
-    <div class="form-buttons">
-      <button class="btn-prev" onclick="window.location.href='calculate.html'">Previous Step</button>
-      <button class="btn-next" onclick="saveDataAndContinue()">Next Step</button>
+    <div class="navbar-right" id="navbar-right">
+      <!-- Dynamic buttons will be inserted here -->
     </div>
   </div>
 
-<script>
-  function saveDataAndContinue() {
-    const getValue = (id) => parseFloat(document.getElementById(id).value) || 0;
-    let allData = JSON.parse(localStorage.getItem('carbonFootprintData')) || {};
+  <div class="container">
+    <h2>How to Use the Calculator</h2>
+    <p>Follow these simple steps to get an accurate estimate of your monthly carbon footprint.</p>
+    
+    <h3>Step 1: Home Energy</h3>
+    <ul>
+      <li>Enter your monthly electricity usage in kilowatt-hours (kWh). You can find this on your electricity bill.</li>
+      <li>If you use piped natural gas, enter the amount in Standard Cubic Meters (SCM) from your gas bill.</li>
+      <li>Add any other fuel sources you use, like Kerosene, LPG cylinders, or wood.</li>
+      <li>If you generate solar power, enter the amount to have it subtracted from your total.</li>
+    </ul>
 
-    const transportationData = {
-      carKm: getValue('car-km'),
-      busKm: getValue('bus-km'),
-      trainKm: getValue('train-km'),
-      flightKm: getValue('flight-km') // Changed from flightHours
-    };
+    <h3>Step 2: Transportation</h3>
+    <ul>
+      <li>Estimate the total kilometers (km) you travel per month for each mode of transport.</li>
+      <li>Include your personal car, public buses, trains or metro, and any flights you've taken.</li>
+    </ul>
 
-    allData.transportation = transportationData;
-    localStorage.setItem('carbonFootprintData', JSON.stringify(allData));
-    window.location.href = 'consumption.html';
-  }
-</script>
-<script src="auth.js"></script>
+    <h3>Step 3: Consumption & Diet</h3>
+    <ul>
+      <li>Estimate the amount of different food types your household consumes in a month, measured in kilograms (kg).</li>
+      <li>Foods like red meat (mutton) have a much higher impact than plant-based foods.</li>
+      <li>For "Non-Food Shopping," estimate the number of new items (like clothes, electronics, etc.) you buy in a typical month.</li>
+    </ul>
+
+    <p>If you don't have a value for a specific field, it's okay to leave it blank—it will be counted as zero.</p>
+    
+    <a href="calculate.html" class="btn-back">Back to Calculator</a>
+  </div>
+
+  <script src="auth.js"></script>
 </body>
 </html>

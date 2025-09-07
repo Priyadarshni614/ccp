@@ -154,7 +154,7 @@ app.post('/reset-password', async (req, res) => {
     }
 });
 
-// SAVE FOOTPRINT DATA - CORRECTED VERSION
+// SAVE FOOTPRINT DATA - CORRECTED AND MORE RELIABLE VERSION
 app.post('/api/save-footprint', async (req, res) => {
     try {
         const { userId, totalEmissions, breakdown } = req.body;
@@ -177,9 +177,15 @@ app.post('/api/save-footprint', async (req, res) => {
         };
 
         // Step 3: Add the new entry to the user's history array
-        await User.findByIdAndUpdate(userId, { $push: { footprintHistory: newFootprintEntry } });
+        user.footprintHistory.push(newFootprintEntry);
+        
+        // Step 4: Save the entire updated user document
+        await user.save();
+
         res.status(200).json({ message: 'Footprint saved successfully!' });
+
     } catch (error) {
+        console.error('Error saving footprint:', error);
         res.status(500).json({ message: 'Server error: ' + error.message });
     }
 });

@@ -804,6 +804,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     });
+
+    // --- Positive Impact Summary ---
+    // This code checks for a reduction and displays an encouraging message.
+    if (history.length >= 2) {
+        const allScores = history.map(e => e.totalEmissions);
+        const maxScore = Math.max(...allScores);
+        const latestScore = allScores[allScores.length - 1];
+        
+        const reduction = maxScore - latestScore;
+
+        // Only show the message if the reduction is meaningful (e.g., more than 10kg)
+        if (reduction > 10) { 
+            const treesPlantedEquivalent = (reduction / 22).toFixed(1); // Avg tree absorbs ~22kg CO2/year
+            
+            const impactSection = document.createElement('div');
+            impactSection.className = 'section';
+            impactSection.innerHTML = `
+                <div class="section-header">
+                    <h2 class="section-title">Your Positive Impact 🌳</h2>
+                    <p class="section-description">
+                        By reducing your footprint from your peak of ${maxScore.toFixed(0)} kg to your latest of ${latestScore.toFixed(0)} kg, your effort is equivalent to the carbon absorbed by <strong>${treesPlantedEquivalent} trees</strong> in a year!
+                    </p>
+                </div>
+            `;
+            // Insert this section after the hero section
+            const heroSection = document.querySelector('.hero-section');
+            heroSection.parentNode.insertBefore(impactSection, heroSection.nextSibling);
+        }
+    }
 });
 </script>
 

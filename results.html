@@ -353,79 +353,90 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // Suggestions based on highest category
-    const categories = {
-        'Home Energy': breakdown.homeEnergy,
-        'Transportation': breakdown.transportation,
-        'Consumption': breakdown.consumption
-    };
-
-    const highestCategory = Object.keys(categories).reduce((a, b) => categories[a] > categories[b] ? a : b);
     const suggestionsContent = document.getElementById('suggestions-content');
-    
-    let suggestionsHTML = '';
-    switch (highestCategory) {
-        case 'Home Energy':
-            suggestionsHTML = `
-            <p>Your main impact comes from <strong>Home Energy</strong>. Here are high-impact actions you can take:</p>
-            <ul>
-              <li><strong>Install a programmable thermostat:</strong> Can reduce heating/cooling costs by 10-15% annually.</li>
-              <li><strong>Improve insulation:</strong> Proper attic and wall insulation can cut energy use by 15-30%.</li>
-              <li><strong>Seal air leaks:</strong> Caulk windows and weatherstrip doors - this alone can save 10-20% on energy bills.</li>
-              <li><strong>Upgrade to ENERGY STAR appliances:</strong> When replacing, choose efficient models that use 10-50% less energy.</li>
-              <li><strong>Switch to heat pump water heater:</strong> Uses 60-70% less energy than conventional electric water heaters.</li>
-              <li><strong>Install solar panels:</strong> Can eliminate 70-100% of your electricity emissions if feasible.</li>
-              <li><strong>Use smart power strips:</strong> Eliminate phantom loads that account for 5-10% of home energy use.</li>
-              <li><strong>Set water heater to 120°F (49°C):</strong> Each 10°F reduction saves 3-5% in water heating costs.</li>
-              <li><strong>Switch to renewable energy plan:</strong> Many utilities offer green energy options with immediate impact.</li>
-            </ul>`;
-            break;
-        case 'Transportation':
-            suggestionsHTML = `
-            <p>Your biggest impact is from <strong>Transportation</strong>. Focus on these high-impact changes:</p>
-            <ul>
-              <li><strong>Work from home 2-3 days per week:</strong> Can reduce transport emissions by 40-60% if possible.</li>
-              <li><strong>Choose fuel-efficient driving routes:</strong> Use navigation apps to avoid traffic and reduce fuel consumption by 10-20%.</li>
-              <li><strong>Maintain your vehicle properly:</strong> Regular tune-ups, proper tire pressure, and clean air filters improve efficiency by 10-15%.</li>
-              <li><strong>Consider hybrid or electric for next car:</strong> EVs produce 60-70% fewer lifecycle emissions than gas cars.</li>
-              <li><strong>Use public transit for longer commutes:</strong> Trains and buses emit 45-76% less CO₂ per passenger mile than cars.</li>
-              <li><strong>Fly less or choose direct flights:</strong> Avoid short-haul flights; takeoffs/landings use the most fuel.</li>
-              <li><strong>Carpool for regular trips:</strong> Sharing rides can cut individual transport emissions in half.</li>
-              <li><strong>Bike or walk for trips under 3 miles:</strong> Replaces high-emission short car trips which are least efficient.</li>
-              <li><strong>Choose efficient vehicles for trips:</strong> Rent smaller, fuel-efficient cars rather than SUVs when possible.</li>
-            </ul>`;
-            break;
-        case 'Consumption':
-            suggestionsHTML = `
-            <p>Your main footprint comes from <strong>Consumption & Diet</strong>. These changes have major impact:</p>
-            <ul>
-              <li><strong>Reduce beef consumption by half:</strong> Beef has 6-20x the emissions of plant proteins - even small reductions matter.</li>
-              <li><strong>Cut food waste by planning meals:</strong> Food waste accounts for 8% of global emissions - plan portions carefully.</li>
-              <li><strong>Buy clothing less frequently:</strong> Fashion industry creates 10% of global emissions - buy quality items that last.</li>
-              <li><strong>Choose plant-based meals 3-4 times per week:</strong> Can reduce diet-related emissions by 20-30%.</li>
-              <li><strong>Buy local and seasonal produce:</strong> Reduces transport emissions and supports local farmers.</li>
-              <li><strong>Reduce packaging waste:</strong> Choose products with minimal packaging or buy in bulk when practical.</li>
-              <li><strong>Repair electronics instead of replacing:</strong> Manufacturing creates 70-80% of a device's total emissions.</li>
-              <li><strong>Buy quality, durable goods:</strong> Items that last longer reduce replacement frequency and embedded emissions.</li>
-              <li><strong>Choose sustainable brands:</strong> Support companies with verified carbon reduction commitments.</li>
-              <li><strong>Reduce single-use items:</strong> Use reusable water bottles, bags, and containers consistently.</li>
-            </ul>`;
-            break;
-        default:
-            suggestionsHTML = `
-            <p>Your carbon footprint is relatively balanced. Focus on these systemic changes for maximum impact:</p>
-            <ul>
-              <li><strong>Vote for climate-conscious policies:</strong> Support representatives who prioritize clean energy and climate action.</li>
-              <li><strong>Invest sustainably:</strong> Move retirement/investment funds to ESG or climate-focused options if available.</li>
-              <li><strong>Support carbon pricing initiatives:</strong> Advocate for carbon taxes or cap-and-trade systems in your area.</li>
-              <li><strong>Join or donate to environmental organizations:</strong> Collective action amplifies individual efforts significantly.</li>
-              <li><strong>Influence your workplace:</strong> Encourage employer sustainability initiatives, remote work, or green building practices.</li>
-              <li><strong>Educate others effectively:</strong> Share specific, actionable information rather than general awareness.</li>
-              <li><strong>Choose banks that don't fund fossil fuels:</strong> Many banks invest deposits in oil/gas projects.</li>
-              <li><strong>Support renewable energy development:</strong> Community solar projects or clean energy advocacy.</li>
-              <li><strong>Offset remaining emissions thoughtfully:</strong> Choose verified, additional carbon offset projects as a last step.</li>
-            </ul>`;
+
+    // START: ADD THIS NEW CHECK
+    if (totalEmissions <= 0) {
+        suggestionsContent.innerHTML = `
+            <p style="text-align: center; font-weight: bold;">Your carbon footprint is zero. That's amazing! Keep up the great work.</p>
+        `;
+    } else {
+    // END: ADD THIS NEW CHECK
+        const categories = {
+            'Home Energy': breakdown.homeEnergy,
+            'Transportation': breakdown.transportation,
+            'Consumption': breakdown.consumption
+        };
+
+        const highestCategory = Object.keys(categories).reduce((a, b) => categories[a] > categories[b] ? a : b);
+
+        let suggestionsHTML = '';
+        switch (highestCategory) {
+            case 'Home Energy':
+                suggestionsHTML = `
+                <p>Your main impact comes from <strong>Home Energy</strong>. Here are high-impact actions you can take:</p>
+                <ul>
+                  <li><strong>Install a programmable thermostat:</strong> Can reduce heating/cooling costs by 10-15% annually.</li>
+                  <li><strong>Improve insulation:</strong> Proper attic and wall insulation can cut energy use by 15-30%.</li>
+                  <li><strong>Seal air leaks:</strong> Caulk windows and weatherstrip doors - this alone can save 10-20% on energy bills.</li>
+                  <li><strong>Upgrade to ENERGY STAR appliances:</strong> When replacing, choose efficient models that use 10-50% less energy.</li>
+                  <li><strong>Switch to heat pump water heater:</strong> Uses 60-70% less energy than conventional electric water heaters.</li>
+                  <li><strong>Install solar panels:</strong> Can eliminate 70-100% of your electricity emissions if feasible.</li>
+                  <li><strong>Use smart power strips:</strong> Eliminate phantom loads that account for 5-10% of home energy use.</li>
+                  <li><strong>Set water heater to 120°F (49°C):</strong> Each 10°F reduction saves 3-5% in water heating costs.</li>
+                  <li><strong>Switch to renewable energy plan:</strong> Many utilities offer green energy options with immediate impact.</li>
+                </ul>`;
+                break;
+            case 'Transportation':
+                suggestionsHTML = `
+                <p>Your biggest impact is from <strong>Transportation</strong>. Focus on these high-impact changes:</p>
+                <ul>
+                  <li><strong>Work from home 2-3 days per week:</strong> Can reduce transport emissions by 40-60% if possible.</li>
+                  <li><strong>Choose fuel-efficient driving routes:</strong> Use navigation apps to avoid traffic and reduce fuel consumption by 10-20%.</li>
+                  <li><strong>Maintain your vehicle properly:</strong> Regular tune-ups, proper tire pressure, and clean air filters improve efficiency by 10-15%.</li>
+                  <li><strong>Consider hybrid or electric for next car:</strong> EVs produce 60-70% fewer lifecycle emissions than gas cars.</li>
+                  <li><strong>Use public transit for longer commutes:</strong> Trains and buses emit 45-76% less CO₂ per passenger mile than cars.</li>
+                  <li><strong>Fly less or choose direct flights:</strong> Avoid short-haul flights; takeoffs/landings use the most fuel.</li>
+                  <li><strong>Carpool for regular trips:</strong> Sharing rides can cut individual transport emissions in half.</li>
+                  <li><strong>Bike or walk for trips under 3 miles:</strong> Replaces high-emission short car trips which are least efficient.</li>
+                  <li><strong>Choose efficient vehicles for trips:</strong> Rent smaller, fuel-efficient cars rather than SUVs when possible.</li>
+                </ul>`;
+                break;
+            case 'Consumption':
+                suggestionsHTML = `
+                <p>Your main footprint comes from <strong>Consumption & Diet</strong>. These changes have major impact:</p>
+                <ul>
+                  <li><strong>Reduce beef consumption by half:</strong> Beef has 6-20x the emissions of plant proteins - even small reductions matter.</li>
+                  <li><strong>Cut food waste by planning meals:</strong> Food waste accounts for 8% of global emissions - plan portions carefully.</li>
+                  <li><strong>Buy clothing less frequently:</strong> Fashion industry creates 10% of global emissions - buy quality items that last.</li>
+                  <li><strong>Choose plant-based meals 3-4 times per week:</strong> Can reduce diet-related emissions by 20-30%.</li>
+                  <li><strong>Buy local and seasonal produce:</strong> Reduces transport emissions and supports local farmers.</li>
+                  <li><strong>Reduce packaging waste:</strong> Choose products with minimal packaging or buy in bulk when practical.</li>
+                  <li><strong>Repair electronics instead of replacing:</strong> Manufacturing creates 70-80% of a device's total emissions.</li>
+                  <li><strong>Buy quality, durable goods:</strong> Items that last longer reduce replacement frequency and embedded emissions.</li>
+                  <li><strong>Choose sustainable brands:</strong> Support companies with verified carbon reduction commitments.</li>
+                  <li><strong>Reduce single-use items:</strong> Use reusable water bottles, bags, and containers consistently.</li>
+                </ul>`;
+                break;
+            default:
+                suggestionsHTML = `
+                <p>Your carbon footprint is relatively balanced. Focus on these systemic changes for maximum impact:</p>
+                <ul>
+                  <li><strong>Vote for climate-conscious policies:</strong> Support representatives who prioritize clean energy and climate action.</li>
+                  <li><strong>Invest sustainably:</strong> Move retirement/investment funds to ESG or climate-focused options if available.</li>
+                  <li><strong>Support carbon pricing initiatives:</strong> Advocate for carbon taxes or cap-and-trade systems in your area.</li>
+                  <li><strong>Join or donate to environmental organizations:</strong> Collective action amplifies individual efforts significantly.</li>
+                  <li><strong>Influence your workplace:</strong> Encourage employer sustainability initiatives, remote work, or green building practices.</li>
+                  <li><strong>Educate others effectively:</strong> Share specific, actionable information rather than general awareness.</li>
+                  <li><strong>Choose banks that don't fund fossil fuels:</strong> Many banks invest deposits in oil/gas projects.</li>
+                  <li><strong>Support renewable energy development:</strong> Community solar projects or clean energy advocacy.</li>
+                  <li><strong>Offset remaining emissions thoughtfully:</strong> Choose verified, additional carbon offset projects as a last step.</li>
+                </ul>`;
+        }
+        suggestionsContent.innerHTML = suggestionsHTML;
+    // START: ADD THIS CLOSING BRACKET
     }
-    suggestionsContent.innerHTML = suggestionsHTML;
+    // END: ADD THIS CLOSING BRACKET
 
     // Save to Profile functionality
     if (userId) {
