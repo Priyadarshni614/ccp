@@ -83,6 +83,38 @@
             color: #2e7d32; 
         }
 
+        .button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .button.profile-button {
+            background-color: #f0f0f0;
+            color: #343a40;
+            margin-right: 10px;
+        }
+
+        .button#logout-button {
+            background-color: #28a745;
+            color: #ffffff;
+        }
+
+        .button#logout-button:hover {
+            background-color: #218838;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+        }
+
         @media (max-width: 900px) { 
             .chart-grid { grid-template-columns: 1fr; } 
         }
@@ -101,7 +133,8 @@
         <a href="ex4.html#about">About</a>
       </div>
       <div class="navbar-right" id="navbar-right">
-        </div>
+        <button id="logout-button" class="button">Logout</button>
+      </div>
     </div>
 
     <div class="container">
