@@ -630,15 +630,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     monthSelector.value = `${year}-${month}`;
     monthSelector.dispatchEvent(new Event('change'));
 
-    // Monthly Line Chart (Showing LAST value, not average)
-    const monthlyData = {};
+    // --- Create a Clean Data Set with Only the LAST Entry Per Month ---
+    const definitiveMonthlyEntries = {};
     history.forEach(entry => {
         const monthYear = new Date(entry.date).toLocaleString('default', { month: 'short', year: 'numeric' });
-        monthlyData[monthYear] = entry.totalEmissions;
+        // Because the history is sorted, this overwrites earlier entries,
+        // leaving only the last one for each month.
+        definitiveMonthlyEntries[monthYear] = entry;
     });
 
-    const monthlyLabels = Object.keys(monthlyData);
-    const monthlyValues = Object.values(monthlyData);
+    // Convert our definitive entries object into an array for easier use
+    const definitiveHistory = Object.values(definitiveMonthlyEntries);
+
+    // --- Chart 1: Monthly Footprint Trend (Bar Chart) ---
+    const monthlyLabels = Object.keys(definitiveMonthlyEntries);
+    const monthlyValues = definitiveHistory.map(entry => entry.totalEmissions);
 
     new Chart('monthlyTrendChart', {
         type: 'bar',
@@ -650,7 +656,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 backgroundColor: '#4caf50',
                 borderColor: '#2e7d32',
                 borderWidth: 2,
-                barPercentage: 0.6
+                barPercentage: 0.4 
             }]
         },
         options: {
@@ -672,9 +678,60 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Yearly Bar Chart
+    // --- Chart 2 & 3: Yearly Averages (Pie Charts) ---
+    // Now both pie charts will be based on the definitive last-entry-per-month data.
+    const currentYear = new Date().getFullYear();
+    const thisYearDefinitiveEntries = definitiveHistory.filter(e => new Date(e.date).getFullYear() === currentYear);
+
+    const yearlyAvgBreakdown = { homeEnergy: 0, transportation: 0, consumption: 0 };
+    thisYearDefinitiveEntries.forEach(e => {
+        yearlyAvgBreakdown.homeEnergy += e.breakdown.homeEnergy;
+        yearlyAvgBreakdown.transportation += e.breakdown.transportation;
+        yearlyAvgBreakdown.consumption += e.breakdown.consumption;
+    });
+
+    const numEntries = thisYearDefinitiveEntries.length || 1;
+    const yearlyAvgData = [
+        yearlyAvgBreakdown.homeEnergy / numEntries,
+        yearlyAvgBreakdown.transportation / numEntries,
+        yearlyAvgBreakdown.consumption / numEntries
+    ];
+
+    const chartColors = ['#66bb6a', '#42a5f5', '#ffca28'];
+    const pieLabels = ['Home Energy', 'Transportation', 'Consumption'];
+
+    // Update both pie chart titles for clarity
+    document.querySelector('#monthlyPieChart').parentElement.querySelector('h3').textContent = `Breakdown (This Year's Avg)`;
+    document.querySelector('#yearlyPieChart').parentElement.querySelector('h3').textContent = `Breakdown (This Year's Avg)`;
+
+    const pieChartOptions = {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
+    };
+
+    // Use the SAME data for both pie charts
+    new Chart('monthlyPieChart', { 
+        type: 'pie', 
+        data: { 
+            labels: pieLabels, 
+            datasets: [{ data: yearlyAvgData, backgroundColor: chartColors, borderWidth: 2, borderColor: '#ffffff' }] 
+        },
+        options: pieChartOptions
+    });
+
+    new Chart('yearlyPieChart', { 
+        type: 'pie', 
+        data: { 
+            labels: pieLabels, 
+            datasets: [{ data: yearlyAvgData, backgroundColor: chartColors, borderWidth: 2, borderColor: '#ffffff' }] 
+        },
+        options: pieChartOptions
+    });
+
+    // --- Yearly Total Emissions (Bar Chart) ---
+    // This chart should sum up the definitive values
     const yearlyData = {};
-    history.forEach(entry => {
+    definitiveHistory.forEach(entry => {
         const year = new Date(entry.date).getFullYear();
         if (!yearlyData[year]) yearlyData[year] = 0;
         yearlyData[year] += entry.totalEmissions;
@@ -690,7 +747,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 backgroundColor: '#66bb6a',
                 borderColor: '#4caf50',
                 borderWidth: 2,
-                barPercentage: 0.6
+                barPercentage: 0.4
             }]
         },
         options: {
@@ -707,99 +764,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     grid: {
                         color: 'rgba(0,0,0,0.1)'
                     }
-                }
-            }
-        }
-    });
-
-    const chartColors = ['#66bb6a', '#42a5f5', '#ffca28'];
-    const pieLabels = ['Home Energy', 'Transportation', 'Consumption'];
-    
-    // Monthly Pie Chart (Cumulative Year-to-Date Average)
-    const yearToDateEntries = history.filter(e => new Date(e.date).getFullYear() === new Date().getFullYear());
-
-    const monthlyAverages = {};
-    yearToDateEntries.forEach(entry => {
-        const monthYear = new Date(entry.date).toLocaleString('default', { month: 'short', year: 'numeric' });
-        if (!monthlyAverages[monthYear]) {
-            monthlyAverages[monthYear] = { homeEnergy: 0, transportation: 0, consumption: 0, count: 0 };
-        }
-        monthlyAverages[monthYear].homeEnergy += entry.breakdown.homeEnergy;
-        monthlyAverages[monthYear].transportation += entry.breakdown.transportation;
-        monthlyAverages[monthYear].consumption += entry.breakdown.consumption;
-        monthlyAverages[monthYear].count++;
-    });
-
-    const cumulativeBreakdown = { homeEnergy: 0, transportation: 0, consumption: 0 };
-    let monthCount = 0;
-    for (const month in monthlyAverages) {
-        cumulativeBreakdown.homeEnergy += monthlyAverages[month].homeEnergy / monthlyAverages[month].count;
-        cumulativeBreakdown.transportation += monthlyAverages[month].transportation / monthlyAverages[month].count;
-        cumulativeBreakdown.consumption += monthlyAverages[month].consumption / monthlyAverages[month].count;
-        monthCount++;
-    }
-
-    const cumulativeAvgData = [
-        cumulativeBreakdown.homeEnergy / monthCount,
-        cumulativeBreakdown.transportation / monthCount,
-        cumulativeBreakdown.consumption / monthCount
-    ];
-
-    new Chart('monthlyPieChart', { 
-        type: 'pie', 
-        data: { 
-            labels: pieLabels, 
-            datasets: [{ 
-                data: cumulativeAvgData, 
-                backgroundColor: chartColors,
-                borderWidth: 2,
-                borderColor: '#ffffff'
-            }] 
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }
-    });
-
-    // Yearly Pie Chart (Average for current year)
-    const currentYear = new Date().getFullYear();
-    const thisYearEntries = history.filter(e => new Date(e.date).getFullYear() === currentYear);
-    
-    const yearlyAvgBreakdown = { homeEnergy: 0, transportation: 0, consumption: 0 };
-    thisYearEntries.forEach(e => {
-        yearlyAvgBreakdown.homeEnergy += e.breakdown.homeEnergy;
-        yearlyAvgBreakdown.transportation += e.breakdown.transportation;
-        yearlyAvgBreakdown.consumption += e.breakdown.consumption;
-    });
-
-    const numEntries = thisYearEntries.length || 1;
-    const yearlyAvgData = [
-        yearlyAvgBreakdown.homeEnergy / numEntries,
-        yearlyAvgBreakdown.transportation / numEntries,
-        yearlyAvgBreakdown.consumption / numEntries
-    ];
-
-    new Chart('yearlyPieChart', { 
-        type: 'pie', 
-        data: { 
-            labels: pieLabels, 
-            datasets: [{ 
-                data: yearlyAvgData, 
-                backgroundColor: chartColors,
-                borderWidth: 2,
-                borderColor: '#ffffff'
-            }] 
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
                 }
             }
         }
